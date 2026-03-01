@@ -420,6 +420,8 @@ Managed via:
 ### Ambiguous Queries  
 Addressed through intent parsing and clarification loops.
 
+---
+
 ## Security, Privacy, and Safety Considerations
 
 Agentic systems expand the attack surface compared to single-model inference because they can 
@@ -478,7 +480,8 @@ Below are the core risks and mitigations considered for a production-grade GCP-n
 -   Never send raw documents to external tools; only send the minimal query terms required.
 -   Rate limiting and circuit breakers:
 
-### Monitoring
+---
+## Monitoring
 
 In addition to standard observability, security monitoring should include:
 - Alerts on unusual tool usage patterns (high volume, unexpected tools)
@@ -486,7 +489,8 @@ In addition to standard observability, security monitoring should include:
 - Alerts on anomalous BigQuery access patterns
 - Regular review of logs for potential data leakage
 
-### Evaluation
+---
+## Evaluation
 
 #### Human-in-the-loop for sensitive workflows: For workflows that access sensitive data or external systems, require review/approval.
 
