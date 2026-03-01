@@ -54,6 +54,13 @@ flowchart TD
 
 ---
 
+## Demo
+Here is a working demo if the prototype. 
+
+[▶ Watch here](assets/demo_1.5x.mp4)
+
+---
+
 ## Features
 
 | Feature | Status |

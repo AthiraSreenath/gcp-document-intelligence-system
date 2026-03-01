@@ -35,7 +35,7 @@ st.caption("Entities | Sentiment | Key Info JSON | Summary | PII")
 # ──────────────────────────────────────────────
 with st.sidebar:
     st.header("Run Configuration")
-    api_base_url = st.text_input("API Base URL", value=DEFAULT_API_BASE_URL)
+    api_base_url = DEFAULT_API_BASE_URL
     source = st.radio("Select Source", ["Hacker News", "Upload PDF"])
     uploaded_file = st.file_uploader("PDF", type=["pdf"]) if source == "Upload PDF" else None
     model = st.selectbox("Gemini Model Tier", ["flash", "pro"], index=0)
