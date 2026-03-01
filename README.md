@@ -1,9 +1,18 @@
+<div align="center">
+
 # 🧠 GCP Document Intelligence System
+
+![Python](https://img.shields.io/badge/python-3.11%2B-blue)
+![GCP](https://img.shields.io/badge/GCP-4285F4?logo=googlecloud&logoColor=white)
+![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
+![uv](https://img.shields.io/badge/deps-uv-6E56CF)
+
+</div>
 
 An NLP system that extracts structured information and generates summaries from:
 
-- 📊 **Hacker News corpus** (BigQuery Public Dataset)
-- 📄 **User-uploaded PDFs** (GCS + Document AI)
+- **Hacker News corpus** (BigQuery Public Dataset)
+- **User-uploaded PDFs** (GCS + Document AI)
 
 The system is deployed on **Google Cloud Run** and leverages:
 
@@ -23,17 +32,17 @@ flowchart TD
 
     subgraph PROC["🔄 Processing - Cloud Run"]
         direction TB
-        P1["🧹 Clean + Normalize"]
-        P2["✂️ Chunking (if needed)"]
-        P3["🔐 PII Detection(Cloud DLP - PDFs only)"]
-        P4["🔤 NL API(Entities + Sentiment)"]
-        P5["🤖 Gemini\n(Extraction + Summary)"]
+        P1["Clean + Normalize"]
+        P2["Chunking (if needed)"]
+        P3["PII Detection(Cloud DLP - PDFs only)"]
+        P4["NL API(Entities + Sentiment)"]
+        P5["Gemini\n(Extraction + Summary)"]
 
         P1 --> P2 --> P3 --> P4
         P4 --> P5
     end
 
-    BQ_OUT["📦 BigQuery(processed_docs, run_logs)"]
+    BQ_OUT["BigQuery(processed_docs, run_logs)"]
 
     UI --> CR
     CR --> BQ_IN
@@ -88,9 +97,9 @@ flowchart TD
 
 ---
 
-# Data Sources
+## Data Sources
 
-## 1. Hacker News (BigQuery Public Dataset)
+### 1. Hacker News (BigQuery Public Dataset)
 
 **Source:** `bigquery-public-data.hacker_news.full`
 
@@ -98,15 +107,15 @@ Materialized subset into: `project.dataset.hn_corpus`
 
 **Columns used:** `id`, `title`, `text`, `score`, `by`, `timestamp`
 
-## 2. PDF Upload
+### 2. PDF Upload
 - Uploaded to private GCS bucket
 - Processed with Document AI OCR and Cloud DLP inspection
 
 ---
 
-# Processing Flow
+## Processing Flow
 
-## Hacker News Flow
+### Hacker News Flow
 1. User selects N documents
 2. Fetch subset from BigQuery
 3. Normalize into Document schema
@@ -118,7 +127,7 @@ Materialized subset into: `project.dataset.hn_corpus`
 9. Store results + logs
 10. Display in UI
 
-## PDF Upload Flow
+### PDF Upload Flow
 1. Upload PDF
 2. Store in GCS
 3. Extract text via Document AI
@@ -131,16 +140,16 @@ Materialized subset into: `project.dataset.hn_corpus`
 
 ---
 
-# Prompting Strategy
+## Prompting Strategy
 
-## Structured Extraction Prompt
+### Structured Extraction Prompt
 - Temperature: `0.1`
 - Explicit JSON schema
 - "Return ONLY valid JSON"
 - Pydantic validation
 - One repair retry if invalid
 
-## Summary Prompt
+### Summary Prompt
 - Temperature: `0.2`
 - 3–5 concise sentences
 - No speculation
@@ -150,7 +159,7 @@ Materialized subset into: `project.dataset.hn_corpus`
 
 ---
 
-# Chunking Strategy
+## Chunking Strategy
 - Context-aware budget
 - Reserved tokens for: system prompt, schema, expected output
 - Chunk size: ~4–6k characters
@@ -159,30 +168,30 @@ Materialized subset into: `project.dataset.hn_corpus`
 
 ---
 
-# Cost Management Strategy
+## Cost Management Strategy
 
-## BigQuery
+### BigQuery
 - Select only required columns
 - Use `LIMIT`
 - Partition tables
 - Set maximum bytes billed
 
-## Gemini
+### Gemini
 - Flash as default
 - Pro optional
 - Token logging
 - Char-based estimates
 
-## PDF Controls
+### PDF Controls
 - `MAX_PDF_SIZE_MB`
 - `MAX_CHARS_PER_DOC`
 - `MAX_DOCS_PER_RUN`
 
 ---
 
-# Monitoring & Observability
+## Monitoring & Observability
 
-## Logged Per Document
+### Logged Per Document
 | Metric | Description |
 |---|---|
 | `fetch_ms` | Fetch latency |
@@ -199,12 +208,12 @@ Materialized subset into: `project.dataset.hn_corpus`
 | `model_used` | Model identifier |
 | `status` | Processing status |
 
-## BigQuery Tables
+### BigQuery Tables
 - `runs`
 - `processed_docs`
 - `run_logs`
 
-## UI Displays
+### UI Displays
 - Summary
 - Entities
 - Sentiment
@@ -213,7 +222,7 @@ Materialized subset into: `project.dataset.hn_corpus`
 
 ---
 
-# Baseline Comparison ❗❗
+## Baseline Comparison ❗❗
 
 Baseline comparison is absent in the prototype as it involves more detailed experiementation:  
 1. Accuracy, latency and cost comparison between open source models and GCP services
@@ -223,7 +232,7 @@ Baseline comparison is absent in the prototype as it involves more detailed expe
 
 ---
 
-# Security Considerations
+## Security Considerations
 - Least privilege service accounts
 - Private GCS bucket
 - No raw PII logged
@@ -233,7 +242,7 @@ Baseline comparison is absent in the prototype as it involves more detailed expe
 
 ---
 
-# Error Handling
+## Error Handling
 - Structured API error responses
 - Pydantic validation
 - One retry for invalid JSON
@@ -242,7 +251,7 @@ Baseline comparison is absent in the prototype as it involves more detailed expe
 
 ---
 
-# Testing
+## Testing
 
 Run tests:
 
@@ -260,16 +269,16 @@ Tests for:
 
 ---
 
-# Setup Instructions
+## Setup Instructions
 
-## Using `uv` (Primary)
+### Using `uv` (Primary)
 
 ```bash
 uv sync
 uv run uvicorn app.main:app --reload
 ```
 
-## `requirements.txt` (Assignment Compliance)
+**requirements.txt** is also included.
 
 Generated via:
 
@@ -279,7 +288,7 @@ uv pip freeze > requirements.txt
 
 ---
 
-# GCP Setup
+## GCP Setup
 
 **Enable APIs:**
 - BigQuery
@@ -300,7 +309,9 @@ uv pip freeze > requirements.txt
 
 ---
 
-# Cloud Run Deployment
+## Cloud Run Deployment
+
+The app is containerised using `Docker`. The image is built and pushed via Cloud Build, then deployed to Cloud Run.
 
 ```bash
 gcloud builds submit --tag gcr.io/PROJECT_ID/app
@@ -315,7 +326,7 @@ gcloud run deploy app \
 ```
 
 ---
-# Streamlit UI
+## Streamlit UI
 
 The Streamlit UI is a lightweight frontend for running the pipeline and viewing results. 
 
@@ -340,7 +351,8 @@ Open: [http://localhost:8501](http://localhost:8501)
 
 ---
 
-# Known Limitations
+## Known Limitations
+- Yet to implement baseline comparisons
 - Baseline comparison is absent
 - PDF only (future production scope)
 - English-only assumption
@@ -348,19 +360,18 @@ Open: [http://localhost:8501](http://localhost:8501)
 - Only basic logging and monitoring
 - Limited file type support
 - Basic prompting
-- Yet to implement baseline
-- Yet to implement lint tests
+- Yet to implement linting and formatting
 - No multi-step conversation (chat like interface)
 ---
 
-# Production Scope and Improvements
-While this protoype has production-structured baseline, there is a far bigger territory to cover in terms of production scop. For more details, see the report - [Future Production Scope and Improvements](./Future%20Production%20Scope%20and%20Improvements.md)
+## Production Scope
+While this protoype has production-structured baseline, there is a far bigger territory to cover in terms of production scope. For more details, see the report - [Future Production Scope and Improvements.md](./Future%20Production%20Scope%20and%20Improvements.md)
 
 ---
 
-# Adding Agentic Capabilities
-Adding agentic capablities to this summarization project will take this task to the next level. For more details, see the report - [Agentic System Design](./Agentic%20System%20Design.md)
+## Adding Agentic Capabilities
+Adding agentic capablities to this summarization project will take this task to the next level. For more details, see the report - [Agentic System Design.md](./Agentic%20System%20Design.md)
 
-# 📄 License
+## 📄 License
 
 *For evaluation purposes only.*

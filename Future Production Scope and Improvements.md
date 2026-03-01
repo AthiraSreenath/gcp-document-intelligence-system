@@ -1,4 +1,4 @@
-# Future Production Scope and Improvements
+# 📦 Future Production Scope and Improvements
 
 This prototype demonstrates a production-structured baseline: 
 - FastAPI backend (Cloud Run) orchestrates document ingestion (PDF via Document AI), 

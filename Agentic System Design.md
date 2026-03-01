@@ -1,4 +1,4 @@
-# Agent Design Report
+# 🤖 Agent Design Report
 
 Our prototype implements a GCP-native NLP system that:
 - Extracts entities, sentiment from text
@@ -165,19 +165,19 @@ The diagram below illustrates the full agent reasoning loop, including the ambig
 ```mermaid
 
 flowchart TD
-    A([User Query]) --> B[Intent Parser\nExtract: topic, time range,\nmetrics, output type]
-    B --> C{Ambiguous\nIntent?}
-    C -- Yes --> D[Clarification Loop\nAsk user to resolve\nambiguous fields]
+    A([User Query]) --> B[Intent Parser Extract: topic, time range, metrics, output type]
+    B --> C{Ambiguous Intent?}
+    C -- Yes --> D[Clarification Loop: Ask user to resolve ambiguous fields]
     D --> B
-    C -- No --> E[Retrieval Tool\nQuery BigQuery with\nfiltered parameters]
-    E --> F{Results\nFound?}
-    F -- No --> G([Return: No documents\nfound for criteria])
-    F -- Yes --> H[Aggregation Tool\nCompute entity frequency,\nsentiment distributions,\ntemporal groupings]
-    H --> I[Context Builder\nCompress aggregated data\ninto token-efficient\nLLM context]
-    I --> J[Reasoning Tool — Gemini\nGenerate structured insights\nwith role framing +\noutput constraints]
-    J --> K{Output\nValidation}
-    K -- PII/Jailbreak/Prompt Injection Detected --> L[Redaction\nStrip or tokenize\nsensitive fields]
-    L --> M([Return Validated Response\nto User])
+    C -- No --> E[Retrieval Tool: Query BigQuery with filtered parameters]
+    E --> F{Results Found?}
+    F -- No --> G([Return: No documents found for criteria])
+    F -- Yes --> H[Aggregation Tool Compute entity frequency, sentiment distributions, temporal groupings]
+    H --> I[Context Builder Compress aggregated data into token-efficient LLM context]
+    I --> J[Reasoning Tool — Gemini Generate structured insights with role framing + output constraints]
+    J --> K{Output Validation}
+    K -- PII/Jailbreak/Prompt Injection Detected --> L[Redaction Strip or tokenize sensitive fields]
+    L --> M([Return Validated Response to User])
     K -- Clean --> M
 
     style A fill:#4285F4,color:#fff
@@ -282,6 +282,7 @@ def run_agent(user_query: str, session_state: dict = None) -> str:
 - Retrieval is capped — a max_results guardrail prevents runaway BigQuery costs on broad queries.
 - Aggregation is deterministic — no LLM is involved before Step 6, reducing hallucination surface area.
 - Context is compressed — the LLM never sees raw documents, only structured aggregated output.
+- Detecting prompt injection and jailbreak for system safety
 - PII redaction is post-generation — Cloud DLP acts as a safety net even if upstream redaction was applied.
 - Session state is optional — supports both single-turn and multi-turn workflows without coupling.
 
