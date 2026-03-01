@@ -5,26 +5,34 @@ description = "An NLP system that extracts structured information and generates 
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "beautifulsoup4>=4.14.3",
-    "fastapi>=0.134.0",
-    "google>=3.0.0",
-    "google-cloud-aiplatform>=1.139.0",
-    "google-cloud-bigquery>=3.40.1",
-    "google-cloud-dlp>=3.34.0",
-    "google-cloud-documentai>=3.10.0",
-    "google-cloud-language>=2.19.0",
-    "google-cloud-storage>=3.9.0",
-    "httpx>=0.28.1",
-    "nltk>=3.9.3",
-    "pandas>=2.3.3",
-    "pydantic>=2.12.5",
-    "pydantic-settings>=2.13.1",
-    "pytest>=9.0.2",
-    "pytextrank>=3.3.0",
-    "python-multipart>=0.0.22",
-    "spacy>=3.8.11",
-    "streamlit>=1.54.0",
-    "sumy>=0.12.0",
-    "uvicorn>=0.41.0",
-    "vertexai>=1.43.0",
+  "beautifulsoup4>=4.12",
+  "fastapi>=0.134.0",
+  "google>=3.0.0",
+  "google-cloud-aiplatform>=1.139.0",
+  "google-cloud-bigquery>=3.40.1",
+  "google-cloud-dlp>=3.34.0",
+  "google-cloud-documentai>=3.10.0",
+  "google-cloud-language>=2.19.0",
+  "google-cloud-storage>=3.9.0",
+  "httpx>=0.28.1",
+  "nltk>=3.9.3",
+  "pandas>=2.3.3",
+  "pydantic>=2.12.5",
+  "pydantic-settings>=2.2",
+  "pytextrank>=3.3.0",
+  "python-multipart>=0.0.22",
+  "spacy>=3.8.11",
+  "streamlit>=1.54.0",
+  "sumy>=0.12.0",
+  "uvicorn>=0.41.0",
+  "vertexai>=1.43.0",
 ]
+
+[dependency-groups]
+dev = [
+  "pytest>=9",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
