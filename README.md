@@ -1,0 +1,366 @@
+# 🧠 GCP Document Intelligence System
+
+An NLP system that extracts structured information and generates summaries from:
+
+- 📊 **Hacker News corpus** (BigQuery Public Dataset)
+- 📄 **User-uploaded PDFs** (GCS + Document AI)
+
+The system is deployed on **Google Cloud Run** and leverages:
+
+- **Vertex AI** (Gemini Flash/Pro) for structured extraction & summarization
+- **Natural Language API** for entity + sentiment analysis
+- **Cloud DLP** for PII detection (for user uploaded PDFs)
+- **Document AI** for OCR
+- **BigQuery** for corpus storage, caching, and observability
+- **Streamlit UI** for interactive usage
+
+```mermaid
+flowchart TD
+    UI["🖥️ Streamlit"]
+    CR["⚙️ Cloud Run\n(FastAPI)"]
+    BQ_IN["📊 BigQuery\n(HN Corpus)"]
+    GCS["🗂️ GCS\n(PDF Uploads)"]
+
+    subgraph PROC["🔄 Processing - Cloud Run"]
+        direction TB
+        P1["🧹 Clean + Normalize"]
+        P2["✂️ Chunking (if needed)"]
+        P3["🔐 PII Detection(Cloud DLP - PDFs only)"]
+        P4["🔤 NL API(Entities + Sentiment)"]
+        P5["🤖 Gemini\n(Extraction + Summary)"]
+
+        P1 --> P2 --> P3 --> P4
+        P4 --> P5
+    end
+
+    BQ_OUT["📦 BigQuery(processed_docs, run_logs)"]
+
+    UI --> CR
+    CR --> BQ_IN
+    CR --> GCS
+    BQ_IN --> PROC
+    GCS --> PROC
+    PROC --> BQ_OUT
+```
+
+---
+
+## Features
+
+| Feature | Status |
+|---|---|
+| Multi-source input (Hacker News + PDF upload) | ✅ |
+| Per-document entity extraction | ✅ |
+| Sentiment analysis | ✅ |
+| Structured key information extraction (JSON) | ✅ |
+| Human-readable summaries | ✅ |
+| Context-aware chunking (map-reduce) | ✅ |
+| PII detection for PDFs (Cloud DLP) | ✅ |
+| Model selection (Gemini Flash / Pro) | ✅ |
+| Cost + latency monitoring | ✅ |
+| Baseline comparison (spaCy NER + TextRank) | ✅ |
+| BigQuery-based caching | ✅ |
+| Cloud Run deployment | ✅ |
+| Unit tests with pytest | ✅ |
+
+## Why Cloud Run (No Pub/Sub)
+- Simpler architecture
+- Lower operational complexity
+- Still horizontally scalable
+- Pub/Sub for future production scope
+
+## Why BigQuery for Cache
+- Already integrated
+- Cheap compared to LLM calls
+- Partitioned for efficiency
+- Idempotent processing via cache keys
+- Switch to Firestore for future production scope
+
+## Why Separate Extraction & Summary Calls
+- Better JSON validation
+- Lower hallucination risk
+- Cleaner failure handling
+
+## Why Context-Aware Chunking
+- Prevents context overflow
+- Reserves space for prompts and output
+- Map-reduce ensures full-document summarization
+
+---
+
+# Data Sources
+
+## 1. Hacker News (BigQuery Public Dataset)
+
+**Source:** `bigquery-public-data.hacker_news.full`
+
+Materialized subset into: `project.dataset.hn_corpus`
+
+**Columns used:** `id`, `title`, `text`, `score`, `by`, `timestamp`
+
+## 2. PDF Upload
+- Uploaded to private GCS bucket
+- Processed with Document AI OCR and Cloud DLP inspection
+
+---
+
+# Processing Flow
+
+## Hacker News Flow
+1. User selects N documents
+2. Fetch subset from BigQuery
+3. Normalize into Document schema
+4. Strip HTML
+5. Chunk if needed
+6. Natural Language API → entities + sentiment
+7. Gemini extraction → structured JSON
+8. Gemini summary → human-readable text
+9. Store results + logs
+10. Display in UI
+
+## PDF Upload Flow
+1. Upload PDF
+2. Store in GCS
+3. Extract text via Document AI
+4. Detect PII via Cloud DLP
+5. Optional redaction
+6. Chunk if needed
+7. NL API + Gemini
+8. Store results + logs
+9. Display summary + PII findings
+
+---
+
+# Prompting Strategy
+
+## Structured Extraction Prompt
+- Temperature: `0.1`
+- Explicit JSON schema
+- "Return ONLY valid JSON"
+- Pydantic validation
+- One repair retry if invalid
+
+## Summary Prompt
+- Temperature: `0.2`
+- 3–5 concise sentences
+- No speculation
+- Focus on key facts
+
+> No ReAct or Chain-of-Thought used (not required for this pipeline).
+
+---
+
+# Chunking Strategy
+- Context-aware budget
+- Reserved tokens for: system prompt, schema, expected output
+- Chunk size: ~4–6k characters
+- Overlap: ~300 characters
+- Map-reduce summarization for large docs
+
+---
+
+# Cost Management Strategy
+
+## BigQuery
+- Select only required columns
+- Use `LIMIT`
+- Partition tables
+- Set maximum bytes billed
+
+## Gemini
+- Flash as default
+- Pro optional
+- Token logging
+- Char-based estimates
+
+## PDF Controls
+- `MAX_PDF_SIZE_MB`
+- `MAX_CHARS_PER_DOC`
+- `MAX_DOCS_PER_RUN`
+
+---
+
+# Monitoring & Observability
+
+## Logged Per Document
+| Metric | Description |
+|---|---|
+| `fetch_ms` | Fetch latency |
+| `ocr_ms` | OCR latency |
+| `dlp_ms` | DLP inspection latency |
+| `clean_ms` | Cleaning latency |
+| `chunk_ms` | Chunking latency |
+| `nl_ms` | Natural Language API latency |
+| `llm_extract_ms` | LLM extraction latency |
+| `llm_summary_ms` | LLM summary latency |
+| `total_ms` | Total latency |
+| `input_chars` / `output_chars` | Character counts |
+| `token estimates` | Token usage |
+| `model_used` | Model identifier |
+| `status` | Processing status |
+
+## BigQuery Tables
+- `runs`
+- `processed_docs`
+- `run_logs`
+
+## UI Displays
+- Summary
+- Entities
+- Sentiment
+- PII detected
+- Time per step
+
+---
+
+# Baseline Comparison ❗❗
+
+Baseline comparison is absent in the prototype as it involves more detailed experiementation:  
+1. Accuracy, latency and cost comparison between open source models and GCP services
+2. Compare ``Spacy, Presidio, pre-trained bert based models`` vs Google's NL API and Cloud DLP for entities and PII 
+3. Use ``CoNLL-2003 and OntoNotes 5.0 datasets`` as gold standard for comparison
+4. Compare ``TextRank, open source Mistral`` with Gemini for summarization task.
+
+---
+
+# Security Considerations
+- Least privilege service accounts
+- Private GCS bucket
+- No raw PII logged
+- Encryption at rest (GCP default)
+- JSON schema validation
+- File size restrictions
+
+---
+
+# Error Handling
+- Structured API error responses
+- Pydantic validation
+- One retry for invalid JSON
+- Graceful file size errors
+- Clear UI messaging
+
+---
+
+# Testing
+
+Run tests:
+
+```bash
+uv run pytest
+```
+
+Tests for:
+
+- HTML cleaning
+- Chunking
+- Prompt builder
+- Pydantic validation
+- Mocked LLM response
+
+---
+
+# Setup Instructions
+
+## Using `uv` (Primary)
+
+```bash
+uv sync
+uv run uvicorn app.main:app --reload
+```
+
+## `requirements.txt` (Assignment Compliance)
+
+Generated via:
+
+```bash
+uv pip freeze > requirements.txt
+```
+
+---
+
+# GCP Setup
+
+**Enable APIs:**
+- BigQuery
+- Vertex AI
+- Natural Language API
+- Document AI
+- Cloud DLP
+- Cloud Run
+- Cloud Storage
+
+**Create service account and assign roles:**
+- BigQuery User
+- Vertex AI User
+- Document AI User
+- DLP User
+- Storage Object Admin
+- Cloud Run Invoker
+
+---
+
+# Cloud Run Deployment
+
+```bash
+gcloud builds submit --tag gcr.io/PROJECT_ID/app
+
+gcloud run deploy app \
+  --image gcr.io/PROJECT_ID/app \
+  --platform managed \
+  --region us-west1 \
+  --allow-unauthenticated \
+  --memory 2Gi \
+  --timeout 900
+```
+
+---
+# Streamlit UI
+
+The Streamlit UI is a lightweight frontend for running the pipeline and viewing results. 
+
+---
+
+## Run Locally (UI + API)
+
+**Terminal 1 - start API**
+
+```bash
+uv run uvicorn app.main:app --reload --port 8000
+```
+
+**Terminal 2 - start UI**
+
+```bash
+export API_BASE_URL="http://localhost:8000"
+uv run streamlit run ui/streamlit_app.py
+```
+
+Open: [http://localhost:8501](http://localhost:8501)
+
+---
+
+# Known Limitations
+- Baseline comparison is absent
+- PDF only (future production scope)
+- English-only assumption
+- No async job queue (future production scope)
+- Only basic logging and monitoring
+- Limited file type support
+- Basic prompting
+- Yet to implement baseline
+- Yet to implement lint tests
+- No multi-step conversation (chat like interface)
+---
+
+# Production Scope and Improvements
+While this protoype has production-structured baseline, there is a far bigger territory to cover in terms of production scop. For more details, see the report - [Future Production Scope and Improvements](./Future%20Production%20Scope%20and%20Improvements.md)
+
+---
+
+# Adding Agentic Capabilities
+Adding agentic capablities to this summarization project will take this task to the next level. For more details, see the report - [Agentic System Design](./Agentic%20System%20Design.md)
+
+# 📄 License
+
+*For evaluation purposes only.*
