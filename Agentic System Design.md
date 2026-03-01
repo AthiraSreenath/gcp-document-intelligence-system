@@ -10,6 +10,7 @@ This core system can work as a foundation for:
 - RAG application for virtual assistants/chatbots etc.
 
 The remainder of this report focuses on the agentic design, architectural strategy, and system-level considerations.
+---
 
 ## Why Introduce Agents?
 Single-document summarization is straightforward. Real-world enterprise value comes from:
@@ -27,6 +28,7 @@ These require:
 - Iterative reasoning  
 - Structured memory access  
 
+---
 ## Proposed Agents
 
 ### 1. Insight Aggregation Agent
@@ -62,15 +64,12 @@ Provide structured analytical responses to strategic queries.
 
 ---
 
-### 3. Document Triage Agent (Future Extension)
+## Demo
+Here is a sample demo of how using agents can elevate the capabilities of this product. The video demonstartes an agent that does cross-document chat on the same hacker news datsaet.
 
-**Objective:**  
-Automate classification, prioritization, and routing of incoming documents.
+The implementation uses custom agentic orchestration logic and BigQuery for storage and retrieval. The code is at nasant stage and hence not available in the repo.
 
-**Capabilities:**
-- Entity-based categorization  
-- Sentiment-based prioritization  
-- Workflow routing  
+[![Agentic Demo](assets/demo_preview.gif)](assets/agent_demo_1.5x.mp4)
 
 ---
 
@@ -330,7 +329,7 @@ def summarize_across_documents(user_query: str, session_id: str | None = None) -
 
 ---
 
-# 8. Prompting Strategy
+## Prompting Strategy
 
 ### Structured Context Injection
 The LLM receives:
@@ -495,11 +494,3 @@ In addition to standard observability, security monitoring should include:
 #### Human-in-the-loop for sensitive workflows: For workflows that access sensitive data or external systems, require review/approval.
 
 #### Offline benchmark dataset: Create an offline benchmark dataset for detailed evaluation
-
-
-## Demo
-
-Below is a short demo showcasing how agentic capabilities enhance the system.  
-The implementation uses custom agentic orchestration logic and BigQuery for storage and retrieval. The code is at nasant stage and hence not available in the repo.
-
-[![Agentic Demo](assets/demo_preview.gif)](assets/agent_demo_1.5x.mp4)
