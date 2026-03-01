@@ -215,8 +215,8 @@ flowchart TD
 
 ```
 
-### Pseudocode (Cross-Document Summarization)
-The following pseudocode shows how the agent chains tools, handles ambiguous queries mid-loop, and manages state through the reasoning cycle.
+### Pseudocode 
+The following pseudocode shows how the agent chains tools, handles ambiguous queries mid-loop, and manages state through the reasoning cycle. The task used in this exmaple is **Cross-Document Summarization**.
 
 ```python
 def summarize_across_documents(user_query: str, session_id: str | None = None) -> dict:
