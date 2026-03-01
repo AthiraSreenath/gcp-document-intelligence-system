@@ -55,9 +55,11 @@ flowchart TD
 ---
 
 ## Demo
-Here is a working demo if the prototype. 
+Here is a working demo of the prototype. 
 
-[▶ Watch here](assets/demo_1.5x.mp4)
+[![Demo](assets/demo.gif)](assets/demo_3x.mp4)
+
+[▶ Download full video here](assets/demo_1.5x.mp4)
 
 ---
 
