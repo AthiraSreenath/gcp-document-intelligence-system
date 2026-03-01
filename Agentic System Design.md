@@ -495,3 +495,11 @@ In addition to standard observability, security monitoring should include:
 #### Human-in-the-loop for sensitive workflows: For workflows that access sensitive data or external systems, require review/approval.
 
 #### Offline benchmark dataset: Create an offline benchmark dataset for detailed evaluation
+
+
+## Demo
+
+Below is a short demo showcasing how agentic capabilities enhance the system.  
+The implementation uses custom agentic orchestration logic and BigQuery for storage and retrieval. The code is at nasant stage and hence not available in the repo.
+
+[![Agentic Demo](assets/demo_preview.gif)](assets/agent_demo_1.5x.mp4)
