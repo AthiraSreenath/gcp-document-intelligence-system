@@ -76,24 +76,41 @@ Automate classification, prioritization, and routing of incoming documents.
 
 ## Agent Architectural Principles
 
-### Tools Used
+### Infrastructure Example
 
-Each tool has a its own capabilities and is exposed as an independent tool:
+| Layer                | GCP Service                                      | Purpose                          |
+|----------------------|--------------------------------------------------|----------------------------------|
+| API Layer            | Cloud Run, Pub/Sub                               |          Stateless backend API   |
+| Agent Orchestration  | Vertex AI Agent Builder (or custom Python agent on Cloud Run) |  Tool orchestration |
+| LLM                  | Gemini (Flash / Pro)                             | Synthesis & reasoning            |
+| Structured Memory    | BigQuery                                         | Analytical document store        |
+| Raw Storage          | Cloud Storage                                    | PDF storage                      |
+| Vector Memory        | Vertex AI Vector Search                          | Semantic retrieval               |
+| Session State        | Firestore                                        | Multi-turn context               |
+| PII Detection        | Cloud DLP                                        | Redaction & tokenization         |
+| Prompt injection and Jailbreak        | Custom/Open source models       | Redaction & tokenization         |
+| Observability        | Cloud Logging & Monitoring                       | Metrics & auditability           |
 
-- Retrieval Tool (BigQuery)
-- Extraction Tool (Cloud NLP)
-- Aggregation Tool
-- Reasoning Tool (Gemini)
-- Web Scraping Tool
-- Access to specific apps
-- Context Builder
 
-Exposing as independent tool ensures:
+### Implementation Roadmap
 
-- Observability  
-- Replaceability  
-- Scalable composition  
-- Enterprise governance  
+#### Phase 1 — Agent Layer
+- Implement intent parser
+- Register BigQuery retrieval tool
+- Add deterministic aggregation module
+- Add Gemini reasoning tool
+- Add structured output validator
+- Add clarification loop
+
+
+#### Phase 2 — Production Hardening
+- IAM-scoped service accounts
+- Row-level security in BigQuery
+- DLP redaction pipeline
+- Prompt injection and Jailbreak detection
+- Structured logging
+- Cost monitoring
+- Alerting
 
 ---
 
@@ -124,6 +141,16 @@ This improves:
 - Reliability  
 - Interpretability  
 - Safety  
+
+---
+
+### Optimizations 
+
+- Flash model for extraction tasks
+- Pro model only for high-level synthesis
+- Structured aggregation before LLM
+- Token compression
+- Retrieval row limits
 
 ---
 
@@ -188,92 +215,86 @@ flowchart TD
 
 ```
 
-### Pseudocode
+### Pseudocode (Cross-Document Summarization)
 The following pseudocode shows how the agent chains tools, handles ambiguous queries mid-loop, and manages state through the reasoning cycle.
 
 ```python
-from dataclasses import dataclass
-from typing import Optional
-
-@dataclass
-class Intent:
-    topic: str
-    time_range: Optional[tuple]
-    metrics: list[str]          # e.g. ["entity_freq", "sentiment_dist"]
-    output_type: str            # e.g. "bullet_insights", "trend_summary"
-    ambiguous_fields: list[str] # fields that need clarification
-
-
-def run_agent(user_query: str, session_state: dict = None) -> str:
+def summarize_across_documents(user_query: str, session_id: str | None = None) -> dict:
     """
-    Main agent reasoning loop.
-    Chains intent parsing → retrieval → aggregation → synthesis → validation.
+    Agentic workflow: cross-document summarization.
+    Produces one synthesized summary across a retrieved document set.
     """
 
-    # Step 1: Intent Parsing
-    # Gemini extracts structured intent from the raw user query
-    intent = intent_parser.parse(
+    # 1) Parse intent: topic + time range + desired summary style
+    intent = vertex_ai_llm.parse_intent(
+        model="gemini-1.5-flash",
         query=user_query,
-        session_context=session_state  # inject prior turn context if multi-turn
+        schema={
+            "topic": "string",
+            "time_range_days": "int|optional",
+            "summary_style": "bullet|narrative",
+            "focus": "what to emphasize"
+        }
     )
 
-    # Step 2: Clarification Loop — handle ambiguous queries
-    max_clarification_attempts = 2
-    attempts = 0
-    while intent.ambiguous_fields and attempts < max_clarification_attempts:
-        clarification_response = ask_user_clarification(intent.ambiguous_fields)
-        intent = intent_parser.refine(intent, clarification_response)
-        attempts += 1
+    # Clarify if critical fields are missing
+    if intent.is_ambiguous():
+        clarification = request_user_clarification(intent.missing_fields)
+        intent = vertex_ai_llm.refine_intent(intent, clarification)
 
-    if intent.ambiguous_fields:
-        # Still ambiguous after max attempts — proceed with best-effort defaults
-        intent = intent_parser.apply_defaults(intent)
-
-    # Step 3: Retrieval — query BigQuery with parsed filters
-    raw_data = retrieval_tool.query_bigquery(
-        topic=intent.topic,
-        time_range=intent.time_range,
-        max_results=500             # cost guardrail
+    # 2) Retrieve candidate documents (BigQuery metadata + extracted fields)
+    # Pull doc_id, title, timestamp, per-doc summary, top entities, sentiment, and/or key excerpts.
+    docs = bigquery_client.query(
+        sql=build_docset_sql(topic=intent.topic, days=intent.time_range_days),
+        max_rows=200  # cost + latency guardrail
     )
 
-    if not raw_data:
-        return "No documents found matching the given criteria. Try broadening the time range or topic."
+    if not docs:
+        return {"message": "No documents found matching the criteria."}
 
-    # Step 4: Structured Aggregation — deterministic, no LLM involved
-    aggregated = aggregation_tool.run(
-        data=raw_data,
-        metrics=intent.metrics      # e.g. entity_freq, sentiment_dist, temporal
+    # 3) Select the most relevant evidence across the doc set
+    # Option A: deterministic ranking using entity overlap / recency / keyword match
+    ranked = doc_ranker.rank(docs, query=user_query, top_k=30)
+
+    # Option B: semantic rerank using embeddings + Vertex AI Vector Search
+    # ranked = vector_search.rerank(ranked, query=user_query, top_k=30)
+
+    # 4) Build cross-document context (compressed)
+    # Provide the LLM with doc-level summaries/excerpts + doc_ids for citation.
+    context = context_builder.build_cross_doc_context(
+        ranked_docs=ranked,
+        fields=["doc_id", "title", "timestamp", "summary", "key_excerpts", "entities", "sentiment"],
+        max_tokens=6000
     )
 
-    # Step 5: Context Construction — compress to stay within token budget
-    context = context_builder.compress(
-        aggregated_data=aggregated,
-        max_tokens=4096,
-        format="structured_json"
+    # 5) Synthesize ONE summary across all selected documents
+    # The output must explicitly reflect cross-doc themes and differences.
+    cross_doc_summary = vertex_ai_llm.generate(
+        model="gemini-1.5-pro",
+        system_instructions=(
+            "You are an analyst summarizing themes across multiple documents. "
+            "Do not summarize documents one-by-one. "
+            "Identify recurring themes, disagreements, and notable outliers. "
+            "Only use the provided context."
+        ),
+        input_context=context,
+        output_schema={
+            "summary": "string",
+            "key_themes": "list[string]",
+            "notable_outliers": "list[string]",
+            "top_sources": "list[doc_id]"  # citations
+        }
     )
 
-    # Step 6: Generative Synthesis — Gemini produces insights from context only
-    raw_response = reasoning_tool.synthesize(
-        context=context,
-        role="You are a senior data analyst. Respond only from provided context.",
-        output_format=intent.output_type,
-        chain_of_thought=True       # CoT reduces hallucination
-    )
+    # 6) Safety: redact PII if present
+    if cloud_dlp.contains_pii(cross_doc_summary):
+        cross_doc_summary = cloud_dlp.redact(cross_doc_summary)
 
-    # Step 7: Output Validation — PII check + schema enforcement
-    if output_validator.contains_pii(raw_response):
-        raw_response = cloud_dlp.redact(raw_response)
+    # 7) Persist session state (optional)
+    if session_id:
+        firestore_client.store(session_id, {"intent": intent, "result": cross_doc_summary})
 
-    validated_response = output_validator.enforce_schema(
-        response=raw_response,
-        expected_format=intent.output_type
-    )
-
-    # Step 8: Persist session state for multi-turn continuity (Firestore)
-    if session_state is not None:
-        session_store.update(session_state, intent, validated_response)
-
-    return validated_response
+    return cross_doc_summary
 
 ```
 ### Key design decisions
@@ -410,7 +431,7 @@ Agentic systems expand the attack surface compared to single-model inference bec
 Below are the core risks and mitigations considered for a production-grade GCP-native deployment.
 
 
-### Primary risks include:
+### Primary Risks
 
 - Unauthorized tool invocation (agent uses powerful tools beyond intended scope)
 - Data exfiltration (agent leaks sensitive data from BigQuery, documents, or connectors)
@@ -420,7 +441,7 @@ Below are the core risks and mitigations considered for a production-grade GCP-n
 - Supply chain risks (external web sources, untrusted content, third-party APIs)
 
 
-### Mitigations:
+### Mitigations
 
 #### 1. Principle of least privilege (IAM):
 -   Use dedicated service accounts for the agent and for each tool class (read-only retrieval vs write operations).
@@ -465,6 +486,8 @@ In addition to standard observability, security monitoring should include:
 - Alerts on anomalous BigQuery access patterns
 - Regular review of logs for potential data leakage
 
-### Human-in-the-loop for sensitive workflows
+### Evaluation
 
-For workflows that access sensitive data or external systems, require review/approval.
+#### Human-in-the-loop for sensitive workflows: For workflows that access sensitive data or external systems, require review/approval.
+
+#### Offline benchmark dataset: Create an offline benchmark dataset for detailed evaluation
