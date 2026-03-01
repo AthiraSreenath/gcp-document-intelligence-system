@@ -66,9 +66,8 @@ flowchart TD
 | Context-aware chunking (map-reduce) | ✅ |
 | PII detection for PDFs (Cloud DLP) | ✅ |
 | Model selection (Gemini Flash / Pro) | ✅ |
-| Cost + latency monitoring | ✅ |
-| Baseline comparison (spaCy NER + TextRank) | ✅ |
 | BigQuery-based caching | ✅ |
+| Basic cost + latency monitoring | ✅ |
 | Cloud Run deployment | ✅ |
 | Unit tests with pytest | ✅ |
 
@@ -138,6 +137,9 @@ Materialized subset into: `project.dataset.hn_corpus`
 8. Store results + logs
 9. Display summary + PII findings
 
+### BigQuery Schema
+All BigQuery tables are defined in ``infra/bigquery/``
+
 ---
 
 ## Prompting Strategy
@@ -191,7 +193,9 @@ Materialized subset into: `project.dataset.hn_corpus`
 
 ## Monitoring & Observability
 
-### Logged Per Document
+The prototype foundational work for cost and token monitoring which is stored in BigQuery. The cost calculation logic is still *WIP*.
+
+### Logging Plan per Document
 | Metric | Description |
 |---|---|
 | `fetch_ms` | Fetch latency |
@@ -362,7 +366,7 @@ Open: [http://localhost:8501](http://localhost:8501)
 - Basic prompting
 - Yet to implement linting and formatting
 - No multi-step conversation (chat like interface)
----
+- BigQuery tables were provisioned manually via the console (no version-control Makefile or Infrastructure as Code such as Terraform) 
 
 ## Production Scope
 While this protoype has production-structured baseline, there is a far bigger territory to cover in terms of production scope. For more details, see the report - [Future Production Scope and Improvements.md](./Future%20Production%20Scope%20and%20Improvements.md)

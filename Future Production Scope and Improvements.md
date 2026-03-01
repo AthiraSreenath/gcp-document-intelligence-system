@@ -79,6 +79,28 @@ flowchart TD
 
 ---
 
+### Version Controlled Big Query Schema
+The BigQuery schema should be version-controlled in the repository under infra/bigquery/, enabling reproducible environment setup and schema evolution.
+
+Add a small Makefile:
+
+```
+init-bq:
+	bq query --use_legacy_sql=false < infra/bigquery/00_dataset.sql
+	bq query --use_legacy_sql=false < infra/bigquery/01_doc_cache.sql
+	bq query --use_legacy_sql=false < infra/bigquery/02_hn_corpus.sql
+	bq query --use_legacy_sql=false < infra/bigquery/03_processed_docs.sql
+	bq query --use_legacy_sql=false < infra/bigquery/04_run_logs.sql
+	bq query --use_legacy_sql=false < infra/bigquery/05_runs.sql
+```
+
+Then
+
+```
+make init-bq
+```
+---
+
 ## 2. Handling Different File Types
 
 In production, ingestion should support a variety of formats:
