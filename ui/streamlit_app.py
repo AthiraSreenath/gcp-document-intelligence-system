@@ -223,7 +223,7 @@ if not items:
 
 # Document selector (HN only)
 if last_source == "Hacker News":
-    st.markdown("### Choose a news article")
+    st.markdown("### Choose an article")
     labels = [f"{i+1}. {(it.get('title') or '(Untitled)')[:80]}" for i, it in enumerate(items)]
     idx = st.selectbox("", list(range(len(items))), format_func=lambda i: labels[i], label_visibility="collapsed")
     item = items[idx]
