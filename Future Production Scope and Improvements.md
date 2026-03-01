@@ -152,7 +152,15 @@ For very large documents, fan out one Pub/Sub task per chunk, then fan in with a
 
 ---
 
-## 4. Caching and Reuse
+## 4. Advanced Prompting Strategy
+
+As the task definition becomes more advanced, we could shift to more advanced prompting techniques.
+- Define system/user roles
+- Role framing
+- Few shot examples
+- Experiment with CoT, ReAct for best results
+
+## 5. Caching and Reuse
 
 The prototype uses a content-hash doc key and BigQuery cache table as a starting point. Production caching expands into two layers:
 
@@ -177,7 +185,7 @@ Ideally we would use a combination of these:
 
 ---
 
-## 5. Cloud Run Scaling and Performance
+## 6. Cloud Run Scaling and Performance
 
 **Configuration guidance:**
 
@@ -196,7 +204,7 @@ Ideally we would use a combination of these:
 
 ---
 
-## 6. Security and Data Privacy
+## 7. Security and Data Privacy
 
 ### IAM and Access Control
 
@@ -233,7 +241,7 @@ We could use pre-trained models, or build custom models for detecting prompt inj
 
 ---
 
-## 7. Monitoring, Logging, and Error Handling
+## 8. Monitoring, Logging, and Error Handling
 
 ### Structured Logging
 
@@ -252,7 +260,7 @@ Emit structured JSON logs from API and workers containing: `run_id`, `doc_id`, `
 
 ---
 
-## 8. Cost Management and Optimization
+## 9. Cost Management and Optimization
 
 **Key cost drivers:** Document AI OCR (per page), DLP inspection, Gemini tokens (prompt + output), Cloud Run compute, BigQuery query and storage growth.
 
@@ -266,7 +274,7 @@ Emit structured JSON logs from API and workers containing: `run_id`, `doc_id`, `
 
 ---
 
-## 9. CI/CD, Reproducibility, and Infrastructure as Code
+## 10. CI/CD, Reproducibility, and Infrastructure as Code
 
 ### CI/CD Pipeline (Cloud Build)
 
@@ -317,7 +325,7 @@ Manage: GCS buckets, BigQuery datasets and tables, IAM bindings, Pub/Sub topics 
 
 ---
 
-## 10. Evaluation and Quality Gates
+## 11. Evaluation and Quality Gates
 
 ### Offline Evaluation
 
@@ -331,7 +339,7 @@ Maintain a sanitized evaluation dataset and track: summary completeness (ends wi
 
 ---
 
-## 11. Continued Experimentation ❗❗
+## 12. Continued Experimentation ❗❗
 Need to perform extensive experiementation:  
 1. Accuracy, latency and cost of some of the open source models with GCP services
 2. Compare Spacy, Presidio, distilbert models vs Google's NL API and Cloud DLP for entities and PII

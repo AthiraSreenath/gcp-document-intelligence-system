@@ -94,6 +94,8 @@ flowchart TD
 - Reserves space for prompts and output
 - Map-reduce ensures full-document summarization
 
+Please note that this feature is not yet tested on an actual docuemnt.
+
 ---
 
 ## Data Sources
@@ -363,10 +365,11 @@ Open: [http://localhost:8501](http://localhost:8501)
 - No async job queue (future production scope)
 - Only basic logging and monitoring
 - Limited file type support
-- Basic prompting
+- Basic prompting, need to implement hardened system-user prompting.
 - Yet to implement linting and formatting
 - No multi-step conversation (chat like interface)
 - BigQuery tables were provisioned manually via the console (no version-control Makefile or Infrastructure as Code such as Terraform) 
+- Yet to test chunking strategy implemented for large doc with context window exceeding.
 
 ## Production Scope
 While this protoype has production-structured baseline, there is a far bigger territory to cover in terms of production scope. For more details, see the report - [Future Production Scope and Improvements.md](./Future%20Production%20Scope%20and%20Improvements.md)
