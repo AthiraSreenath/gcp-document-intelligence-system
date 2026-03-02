@@ -367,7 +367,6 @@ Open: [http://localhost:8501](http://localhost:8501)
 ---
 
 ## Known Limitations
-- Yet to implement baseline comparisons
 - Baseline comparison is absent
 - PDF only (future production scope)
 - English-only assumption
