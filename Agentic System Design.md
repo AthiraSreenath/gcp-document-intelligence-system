@@ -69,9 +69,9 @@ Here is a sample demo of how using agents can elevate the capabilities of this p
 
 The implementation uses custom agentic orchestration logic and BigQuery for storage and retrieval. The code is at nasant stage and hence not available in the repo.
 
-[![Agentic Demo](assets/demo_preview.gif)](assets/agent_demo_1.5x.mp4)
+[![Agentic Demo](assets/demo_preview.gif)](assets/agent_demo_3x.mp4)
 
-[▶ Download full video here](assets/agent_demo_1.5x.mp4)
+[▶ Download full video here](assets/agent_demo_3x.mp4)
 
 ---
 
