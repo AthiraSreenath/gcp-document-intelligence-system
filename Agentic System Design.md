@@ -71,6 +71,8 @@ The implementation uses custom agentic orchestration logic and BigQuery for stor
 
 [![Agentic Demo](assets/demo_preview.gif)](assets/agent_demo_1.5x.mp4)
 
+[▶ Download full video here](assets/agent_demo_1.5x.mp4)
+
 ---
 
 ## Agent Architectural Principles
