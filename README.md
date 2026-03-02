@@ -86,7 +86,7 @@ Here is a working demo of the prototype.
 - Still horizontally scalable
 - Pub/Sub for future production scope
 
-## Why BigQuery for Cache
+## Why BigQuery for Storage, Analytics & Cache
 - Already integrated
 - Cheap compared to LLM calls
 - Partitioned for efficiency
