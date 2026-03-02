@@ -25,12 +25,12 @@ The system is deployed on **Google Cloud Run** and leverages:
 
 ```mermaid
 flowchart TD
-    UI["🖥️ Streamlit"]
-    CR["⚙️ Cloud Run\n(FastAPI)"]
-    BQ_IN["📊 BigQuery\n(HN Corpus)"]
-    GCS["🗂️ GCS\n(PDF Uploads)"]
+    UI["Streamlit"]
+    CR["Cloud Run (FastAPI)"]
+    BQ_IN["BigQuery (HN Corpus)"]
+    GCS["GCS (PDF Uploads)"]
 
-    subgraph PROC["🔄 Processing - Cloud Run"]
+    subgraph PROC["Processing - Cloud Run"]
         direction TB
         P1["Clean + Normalize"]
         P2["Chunking (if needed)"]
