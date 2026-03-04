@@ -10,6 +10,7 @@ This core system can work as a foundation for:
 - RAG application for virtual assistants/chatbots etc.
 
 The remainder of this report focuses on the agentic design, architectural strategy, and system-level considerations.
+
 ---
 
 ## Why Introduce Agents?
@@ -493,6 +494,6 @@ In addition to standard observability, security monitoring should include:
 ---
 ## Evaluation
 
-#### Human-in-the-loop for sensitive workflows: For workflows that access sensitive data or external systems, require review/approval.
+**Human-in-the-loop for sensitive workflows** : For workflows that access sensitive data or external systems, require review/approval.
 
-#### Offline benchmark dataset: Create an offline benchmark dataset for detailed evaluation
+**Offline benchmark dataset**: Create an offline benchmark dataset for detailed evaluation
