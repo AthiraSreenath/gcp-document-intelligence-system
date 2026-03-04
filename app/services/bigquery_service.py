@@ -1,4 +1,4 @@
-"""BigQuery service (simple + interview-friendly).
+"""BigQuery service).
 
 Tables (all in settings.DATASET):
 - runs: one row per run_id (updated via UPDATE)

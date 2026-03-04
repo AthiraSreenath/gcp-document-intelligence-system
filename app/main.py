@@ -1,4 +1,4 @@
-"""FastAPI app entrypoint (minimal + interview-friendly)."""
+"""FastAPI app entrypoint"""
 
 from fastapi import FastAPI
 
@@ -13,6 +13,5 @@ def create_app() -> FastAPI:
     app.include_router(router)
 
     return app
-
 
 app = create_app()
