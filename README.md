@@ -36,7 +36,7 @@ flowchart TD
         P2["Chunking (if needed)"]
         P3["PII Detection(Cloud DLP - PDFs only)"]
         P4["NL API(Entities + Sentiment)"]
-        P5["Gemini\n(Extraction + Summary)"]
+        P5["Gemini (Extraction + Summary)"]
 
         P1 --> P2 --> P3 --> P4
         P4 --> P5

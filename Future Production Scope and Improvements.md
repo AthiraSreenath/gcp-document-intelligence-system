@@ -231,9 +231,9 @@ DLP inspection already exists in the pipeline. Production enhancements include:
 - Add retention policies (TTL) on raw text where required
 
 **Current state:**
-- ✅ DLP inspection exists
-- ✅ GCS + BigQuery encryption at rest
-- ⚠️ Needs: service account separation, Secret Manager integration, removal of local key artifacts from repo
+- DLP inspection exists
+- GCS + BigQuery encryption at rest
+- Needs: service account separation, Secret Manager integration, removal of local key artifacts from repo
 
 ### Detecting Prompt Injection and Jailbreak
 
