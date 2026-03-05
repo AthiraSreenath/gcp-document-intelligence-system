@@ -106,7 +106,7 @@ Please note that this feature is not yet tested on an actual docuemnt.
 - Still horizontally scalable
 - Pub/Sub for future production scope
 
-The service is containerized with Docker and designed to run on Cloud Run. The final steps of deployment coudl be done during the next phase.
+The service is containerized with Docker and designed to run on Cloud Run. The final steps of deployment could be done during the next phase.
 
 ---
 
@@ -171,7 +171,7 @@ All BigQuery tables are defined in ``infra/bigquery/``
 - No speculation
 - Focus on key facts
 
-> No ReAct or Chain-of-Thought used (not required for this pipeline).
+No ReAct or Chain-of-Thought used (not required for this pipeline).
 
 ---
 
