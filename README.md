@@ -26,7 +26,7 @@ The system is deployed on **Google Cloud Run** and leverages:
 ```mermaid
 flowchart TD
     UI["Streamlit"]
-    CR["Cloud Run (FastAPI)"]
+    API["FastAPI"]
     BQ_IN["BigQuery (HN Corpus)"]
     GCS["GCS (PDF Uploads)"]
 
@@ -44,9 +44,9 @@ flowchart TD
 
     BQ_OUT["BigQuery(processed_docs, run_logs)"]
 
-    UI --> CR
-    CR --> BQ_IN
-    CR --> GCS
+    UI --> API
+    API --> BQ_IN
+    API --> GCS
     BQ_IN --> PROC
     GCS --> PROC
     PROC --> BQ_OUT
@@ -77,14 +77,9 @@ Here is a working demo of the prototype.
 | Model selection (Gemini Flash / Pro) | ✅ |
 | BigQuery-based caching | ✅ |
 | Basic cost + latency monitoring | ✅ |
-| Cloud Run deployment | ✅ |
+| Cloud Run deployment ready | ✅ |
 | Unit tests with pytest | ✅ |
 
-## Why Cloud Run (No Pub/Sub)
-- Simpler architecture
-- Lower operational complexity
-- Still horizontally scalable
-- Pub/Sub for future production scope
 
 ## Why BigQuery for Storage, Analytics & Cache
 - Already integrated
@@ -105,6 +100,13 @@ Here is a working demo of the prototype.
 
 Please note that this feature is not yet tested on an actual docuemnt.
 
+## Cloud Run Compatible
+- Simpler architecture
+- Lower operational complexity
+- Still horizontally scalable
+- Pub/Sub for future production scope
+
+The service is containerized with Docker and designed to run on Cloud Run. The final steps of deployment coudl be done during the next phase.
 ---
 
 ## Data Sources
@@ -311,7 +313,6 @@ uv pip freeze > requirements.txt
 - Natural Language API
 - Document AI
 - Cloud DLP
-- Cloud Run
 - Cloud Storage
 
 **Create service account and assign roles:**
@@ -320,27 +321,9 @@ uv pip freeze > requirements.txt
 - Document AI User
 - DLP User
 - Storage Object Admin
-- Cloud Run Invoker
 
 ---
 
-## Cloud Run Deployment
-
-The app is containerised using `Docker`. The image is built and pushed via Cloud Build, then deployed to Cloud Run.
-
-```bash
-gcloud builds submit --tag gcr.io/PROJECT_ID/app
-
-gcloud run deploy app \
-  --image gcr.io/PROJECT_ID/app \
-  --platform managed \
-  --region us-west1 \
-  --allow-unauthenticated \
-  --memory 2Gi \
-  --timeout 900
-```
-
----
 ## Streamlit UI
 
 The Streamlit UI is a lightweight frontend for running the pipeline and viewing results. 
@@ -366,8 +349,29 @@ Open: [http://localhost:8501](http://localhost:8501)
 
 ---
 
+## Cloud Run Compatible
+
+The app is containerised using `Docker`. The image is ready to be built and pushed via Cloud Build, then deployed to Cloud Run using the below:
+
+```bash
+gcloud builds submit --tag gcr.io/PROJECT_ID/app
+
+gcloud run deploy app \
+  --image gcr.io/PROJECT_ID/app \
+  --platform managed \
+  --region us-west1 \
+  --allow-unauthenticated \
+  --memory 2Gi \
+  --timeout 900
+```
+
+This command could be run during the next phase.
+
+---
+
 ## Known Limitations
 - Baseline comparison is absent
+- Cloud run compatible, yet to be deployed
 - PDF only (future production scope)
 - English-only assumption
 - No async job queue (future production scope)
