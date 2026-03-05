@@ -30,7 +30,7 @@ flowchart TD
     BQ_IN["BigQuery (HN Corpus)"]
     GCS["GCS (PDF Uploads)"]
 
-    subgraph PROC["Processing - Cloud Run"]
+    subgraph PROC["Processing"]
         direction TB
         P1["Clean + Normalize"]
         P2["Chunking (if needed)"]
