@@ -42,7 +42,7 @@ flowchart TD
         P4 --> P5
     end
 
-    BQ_OUT["BigQuery(processed_docs, run_logs)"]
+    BQ_OUT["BigQuery(storage, analytics, cache)"]
 
     UI --> API
     API --> BQ_IN
