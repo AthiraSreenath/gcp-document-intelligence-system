@@ -107,6 +107,7 @@ Please note that this feature is not yet tested on an actual docuemnt.
 - Pub/Sub for future production scope
 
 The service is containerized with Docker and designed to run on Cloud Run. The final steps of deployment coudl be done during the next phase.
+
 ---
 
 ## Data Sources
